@@ -11,11 +11,15 @@ key on `config.json`
 
 .PARAMETER Command
 OCI CLI command other than `oci`, `--config-file`, `--compartment-id`, `--profile`
+
+.PARAMETER ExcludeCompartmentId
+If compartment id is not needed, specify this switch.
 #>
 
 Param(
     [Parameter(Mandatory)][String]$Key,
-    [String]$Command
+    [Parameter(Mandatory)][String]$Command,
+    [switch]$ExcludeCompartmentId
 )
 
 Set-Variable -Name CONFIG_FILE_NAME -Value "config.json" -Option Constant
@@ -61,7 +65,23 @@ if ( $OciConfigProfile -eq "" )
     $OciConfigProfile = "DEFAULT"
 }
 
-Write-Host $OciConfigFilePath
-Write-Host $OciCompartmentId
-Write-Host $OciConfigProfile
+$OciCliCommands = @(
+    'oci'
+    $Command
+    '--config-file'
+    $OciConfigFilePath
+    '--profile'
+    $OciConfigProfile
+)
 
+if ( -not $ExcludeCompartmentId )
+{
+    $OciCliCommands += @(
+        '--compartment-id'
+        $OciCompartmentId
+    )
+}
+
+$OciCliCommand = ($OciCliCommands -join ' ')
+
+Invoke-Expression -Command $OciCliCommand
