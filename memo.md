@@ -38,3 +38,7 @@ compute instance list
 
 compute instance list-vnics
 ```
+
+```text
+compute instance terminate --instance-id $instance_id
+```
